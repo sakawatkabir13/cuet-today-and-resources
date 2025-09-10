@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CUET Today - University Community Platform</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>CUET Today</h2>
+            </div>
+            <ul class="nav-menu" id="nav-menu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/posts" class="nav-link">Posts</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/resources" class="nav-link">Resources</a>
+                </li>
+                <li class="nav-item" id="login-item">
+                    <a href="/login" class="nav-link">Login</a>
+                </li>
+                <li class="nav-item" id="register-item">
+                    <a href="/register" class="nav-link">Register</a>
+                </li>
+                <li class="nav-item" id="logout-item" style="display: none;">
+                    <a href="#" class="nav-link" onclick="logout()">Logout</a>
+                </li>
+            </ul>
+            <div class="hamburger" id="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="hero-section">
+            <div class="hero-content">
+                <h1>Welcome to CUET Today</h1>
+                <p>Connect with students, faculty, and alumni. Share posts and discover valuable resources for academic and career growth.</p>
+                <div class="hero-buttons">
+                    <a href="/posts" class="btn btn-primary">Explore Posts</a>
+                    <a href="/resources" class="btn btn-secondary">Browse Resources</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="features-section">
+            <div class="container">
+                <h2>Platform Features</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📝</div>
+                        <h3>Community Posts</h3>
+                        <p>Share your thoughts, experiences, and connect with the CUET community through posts.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>Resource Library</h3>
+                        <p>Access academic resources, higher study materials, and other valuable content shared by the community.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">👥</div>
+                        <h3>Connect</h3>
+                        <p>Network with students, faculty, and alumni from different batches and departments.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-posts">0</div>
+                        <div class="stat-label">Posts</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-resources">0</div>
+                        <div class="stat-label">Resources</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" id="total-users">0</div>
+                        <div class="stat-label">Users</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 CUET Today. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="/js/script.js"></script>
+    <script>
+        // Load stats on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadStats();
+            checkUserSession();
+        });
+
+        async function loadStats() {
+            try {
+                // Load posts count
+                const postsResponse = await fetch('/api/posts/all');
+                const postsData = await postsResponse.json();
+                if (postsData.success) {
+                    document.getElementById('total-posts').textContent = postsData.posts.length;
+                }
+
+                // Load resources count
+                const resourcesResponse = await fetch('/api/resources/all');
+                const resourcesData = await resourcesResponse.json();
+                if (resourcesData.success) {
+                    document.getElementById('total-resources').textContent = resourcesData.resources.length;
+                }
+
+                // Load users count
+                const usersResponse = await fetch('/api/users/all');
+                const usersData = await usersResponse.json();
+                if (usersData.success) {
+                    document.getElementById('total-users').textContent = usersData.users.length;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+    </script>
+</body>
+</html>

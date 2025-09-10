@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - CUET Today</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <h2>CUET Today</h2>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="/" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/login" class="nav-link">Login</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <div class="auth-container">
+            <div class="auth-card">
+                <h2>Register for CUET Today</h2>
+                
+                <div class="user-type-selector">
+                    <label>Select User Type:</label>
+                    <div class="radio-group">
+                        <input type="radio" id="student" name="userType" value="student" checked>
+                        <label for="student">Student</label>
+                        
+                        <input type="radio" id="faculty" name="userType" value="faculty">
+                        <label for="faculty">Faculty</label>
+                        
+                        <input type="radio" id="alumni" name="userType" value="alumni">
+                        <label for="alumni">Alumni</label>
+                    </div>
+                </div>
+
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <!-- Student specific fields -->
+                    <div id="studentFields" class="conditional-fields">
+                        <div class="form-group">
+                            <label for="batch">Batch:</label>
+                            <input type="text" id="batch" name="batch" placeholder="e.g., 2020">
+                        </div>
+                    </div>
+                    
+                    <!-- Faculty specific fields -->
+                    <div id="facultyFields" class="conditional-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="facultyResearchArea">Research Area:</label>
+                            <textarea id="facultyResearchArea" name="facultyResearchArea" placeholder="Your research area"></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Alumni specific fields -->
+                    <div id="alumniFields" class="conditional-fields" style="display: none;">
+                        <div class="form-group">
+                            <label for="alumniResearchArea">Research Area:</label>
+                            <textarea id="alumniResearchArea" name="alumniResearchArea" placeholder="Your research area"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="currentWorkplace">Current Workplace:</label>
+                            <input type="text" id="currentWorkplace" name="currentWorkplace" placeholder="Your current workplace">
+                        </div>
+                        <div class="form-group">
+                            <label for="description">Description:</label>
+                            <textarea id="description" name="description" placeholder="Short description about yourself"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-full">Register</button>
+                </form>
+                <div id="message" class="message" style="display: none;"></div>
+                <p class="auth-link">Already have an account? <a href="/login">Login here</a></p>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/script.js"></script>
+    <script>
+        // Handle user type selection
+        const userTypeRadios = document.querySelectorAll('input[name="userType"]');
+        const studentFields = document.getElementById('studentFields');
+        const facultyFields = document.getElementById('facultyFields');
+        const alumniFields = document.getElementById('alumniFields');
+
+        userTypeRadios.forEach(radio => {
+            radio.addEventListener('change', function() {
+                // Hide all conditional fields
+                studentFields.style.display = 'none';
+                facultyFields.style.display = 'none';
+                alumniFields.style.display = 'none';
+
+                // Show relevant fields
+                if (this.value === 'student') {
+                    studentFields.style.display = 'block';
+                } else if (this.value === 'faculty') {
+                    facultyFields.style.display = 'block';
+                } else if (this.value === 'alumni') {
+                    alumniFields.style.display = 'block';
+                }
+            });
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userType = document.querySelector('input[name="userType"]:checked').value;
+            
+            let formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value
+            };
+
+            // Add type-specific fields
+            if (userType === 'student') {
+                formData.batch = document.getElementById('batch').value;
+            } else if (userType === 'faculty') {
+                formData.researchArea = document.getElementById('facultyResearchArea').value;
+            } else if (userType === 'alumni') {
+                formData.researchArea = document.getElementById('alumniResearchArea').value;
+                formData.currentWorkplace = document.getElementById('currentWorkplace').value;
+                formData.description = document.getElementById('description').value;
+            }
+
+            try {
+                const response = await fetch(`/api/users/register/${userType}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const data = await response.json();
+                const messageDiv = document.getElementById('message');
+                
+                if (data.success) {
+                    messageDiv.className = 'message success';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                    
+                    // Redirect to login page after successful registration
+                    setTimeout(() => {
+                        window.location.href = '/login';
+                    }, 2000);
+                } else {
+                    messageDiv.className = 'message error';
+                    messageDiv.textContent = data.message;
+                    messageDiv.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Registration error:', error);
+                const messageDiv = document.getElementById('message');
+                messageDiv.className = 'message error';
+                messageDiv.textContent = 'An error occurred during registration';
+                messageDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
